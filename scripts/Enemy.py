@@ -1,6 +1,7 @@
 import pygame
+from scripts.Entity import Entity
 
 
-class Enemy:
+class Enemy(Entity):
     def __init__(self):
-        pass
+        super().__init__(app)
