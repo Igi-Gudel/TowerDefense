@@ -1,3 +1,3 @@
-from Tile import Tile
-from Tower import Tower
-from Enemy import Enemy
+from scripts.Tile import Tile
+from scripts.Tower import Tower
+from scripts.Enemy import Enemy

@@ -1,4 +1,6 @@
 import pygame
+import sys
+import scripts
 
 
 class App:
@@ -14,4 +16,3 @@ class App:
 
 if __name__ == '__main__':
     App().run()
-
