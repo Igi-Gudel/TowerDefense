@@ -12,7 +12,10 @@ class Tile(Entity):
         pass
 
     def render(self, surf: pygame.SurfaceType):
-        pygame.draw.rect(surf, (2*self.idx, 2*self.idy, self.app.TILES_X-self.idx+self.app.TILES_Y-self.idy), self.get_rect(), 1)
+        width = 0
+        if self.idx not in [0, self.app.TILES_X-1] and self.idy not in [0, self.app.TILES_Y-1]:
+            width = 1
+        pygame.draw.rect(surf, (2*self.idx, 2*self.idy, self.app.TILES_X-self.idx+self.app.TILES_Y-self.idy), self.get_rect(), width)
 
     def get_rect(self):
         return pygame.Rect(self.idx*self.app.TILE_SIZE, self.idy*self.app.TILE_SIZE, self.app.TILE_SIZE, self.app.TILE_SIZE)

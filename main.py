@@ -10,11 +10,10 @@ class App:
         self.TILE_SIZE = 32
         self.FPS = 60
 
-        self.OUTLINE = 10
+        self.OUTLINE = 5
         self.screen = pygame.display.set_mode((self.WIDTH + self.OUTLINE*2, self.HEIGHT + self.OUTLINE))
         self.display = pygame.Surface(self.SIZE)
         self.clock = pygame.time.Clock()
-
         self.__setup()
 
     def __setup(self) -> None:
