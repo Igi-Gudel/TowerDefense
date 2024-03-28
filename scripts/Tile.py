@@ -8,14 +8,20 @@ class Tile(Entity):
         self.idx, self.idy = idx, idy
         self.tower = None
 
-    def get_points(self):
-        pass
-
-    def render(self, surf: pygame.SurfaceType):
+    def render(self, surf: pygame.SurfaceType) -> None:
         width = 0
         if self.idx not in [0, self.app.TILES_X-1] and self.idy not in [0, self.app.TILES_Y-1]:
             width = 1
-        pygame.draw.rect(surf, (2*self.idx, 2*self.idy, self.app.TILES_X-self.idx+self.app.TILES_Y-self.idy), self.get_rect(), width)
+        if self.tower is not None:
+            width = 8
+        colour = 4*self.idx, 4*self.idy, 2*(self.app.TILES_X-self.idx+self.app.TILES_Y-self.idy)
+        pygame.draw.rect(surf, colour, self.get_rect(), width)
 
-    def get_rect(self):
+    def get_rect(self) -> pygame.Rect:
         return pygame.Rect(self.idx*self.app.TILE_SIZE, self.idy*self.app.TILE_SIZE, self.app.TILE_SIZE, self.app.TILE_SIZE)
+
+    def get_points(self) -> list:
+        if self.tower is None:
+            return []
+        rect = self.get_rect()
+        return [rect.topleft, rect.midtop, rect.topright, rect.midleft, rect.center, rect.midright, rect.bottomleft, rect.midbottom, rect.bottomright]
