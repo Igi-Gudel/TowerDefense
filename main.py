@@ -29,7 +29,8 @@ class App:
 
     def __setup(self) -> None:
         self.tiles: dict[tuple[int, int], Tile] = {(x, y): Tile(self, x, y) for x in range(self.TILES_X) for y in range(self.TILES_Y)}
-        self.tiles['last'] = None
+        self.tiles['Start'] = None
+        self.tiles['End'] = None
         self.enemies: list[Enemy] = []
         self.pathing: dict[tuple[int, int], int] = {}
         self.towers: list[Tower] = []
@@ -58,21 +59,30 @@ class App:
                     self.mouse[1] = int(min(max(self.mouse[1] + event.rel[1] * min(max(self.data['sensitivity'][1], 0.4), 2.0), self.OUTLINE), self.screen.get_height() - self.OUTLINE) // 1)
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     tile = self.get_tile(*self.mouse, idx=False)
+                    new = "Start" if event.button == 1 else "End"
+                    if tile.idx in [0, self.TILES_X - 1] or tile.idy in [0, self.TILES_Y - 1]:
+                        continue
                     if tile.tower is None:
-                        if self.tiles['last'] is not None:
-                            self.tiles['last'].tower = None
-                        self.tiles['last'] = tile
-                        tile.tower = "Test"
+                        if self.tiles[new] is not None:
+                            self.tiles[new].tower = None
+                        self.tiles[new] = tile
+                        tile.tower = new
                     else:
-                        tile.tower = None
-                        self.tiles['last'] = None
+                        if new == tile.tower:
+                            tile.tower = None
+                            self.tiles[new] = None
+                        else:
+                            if self.tiles[new] is not None:
+                                self.tiles[new].tower = None
+                            self.tiles[new] = tile
+                            tile.tower = new
 
             self.pathing: dict[tuple[int, int], tuple[int, int]] = {}
             point_removal = set()
             for pos in self.tiles:
                 if isinstance(pos, tuple):
                     self.tiles[pos].render(self.display)
-                    if pos[0] in [0, self.TILES_X - 1] or pos[1] in [0, self.TILES_Y - 1] or self.tiles[pos].tower is not None:
+                    if pos[0] in [0, self.TILES_X - 1] or pos[1] in [0, self.TILES_Y - 1] or self.tiles[pos].tower not in [None, 'Start', 'End']:
                         point_removal.update(self.tiles[pos].get_points())
                     for point in self.tiles[pos].get_points():
                         self.pathing[point] = pos
@@ -81,11 +91,32 @@ class App:
                 if point in point_removal:
                     del self.pathing[point]
 
-            pathing: list[tuple] = list(self.pathing.keys())
-            pathing.sort(key=lambda z: z[1] + z[0])
-            pygame.draw.lines(self.gui, 'white', False, pathing)
-            for point in pathing:
-                pygame.draw.circle(self.gui, 'white', point, 1)
+            graph = {}
+            for point in self.pathing:
+                graph[point] = {}
+                for direction in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]:
+                    adjacent = point[0] + 16*direction[0], point[1] + 16*direction[1]
+                    if adjacent in self.pathing:
+                        graph[point][adjacent] = 3 if abs(direction[0]) + abs(direction[1]) == 2 else 2
+            try:
+                start_pos = self.tiles['Start'].get_rect().center
+                end_pos = self.tiles['End'].get_rect().center
+                next_points = dijkstra(graph, start_pos, end_pos)
+                pygame.draw.lines(self.gui, 'white', 0, next_points)
+            except AttributeError:
+                pass
+            except ValueError:
+                pass
+
+            # for point, connections in graph.items():
+            #     for connection in connections:
+            #         pygame.draw.line(self.gui, 'white' if connections[connection]-2 else 'dark grey', point, connection, connections[connection])
+
+            # pathing: list[tuple] = list(self.pathing.keys())
+            # pathing.sort(key=lambda z: z[0] + z[1])
+            # pygame.draw.lines(self.gui, 'white', False, pathing)
+            # for point in pathing:
+            #     pygame.draw.circle(self.gui, 'white', point, 1)
 
             # self.display = warp(self.display, tuple(self.mouse), 40)
             pygame.draw.circle(self.display, 'white', self.mouse, 5, 3)
