@@ -35,7 +35,7 @@ class App:
         self.OUTLINE = 5
         self.screen = pygame.display.set_mode((self.WIDTH + self.OUTLINE * 2, self.HEIGHT + self.OUTLINE))
         self.display = pygame.Surface(self.SIZE)
-        self.gui = pygame.Surface(self.SIZE)
+        self.gui = pygame.Surface(self.SIZE, pygame.SRCALPHA)
         self.clock = pygame.time.Clock()
         self.mouse = list(pygame.mouse.get_pos())
         self.__get_data()
@@ -67,6 +67,7 @@ class App:
         while True:
             self.screen.fill('white')
             self.display.fill('black')
+            self.gui.fill((0, 0, 0, 0))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
@@ -89,10 +90,14 @@ class App:
             for pos in self.tiles:
                 if isinstance(pos, tuple):
                     self.tiles[pos].render(self.display)
+                    for point in self.tiles[pos].get_points():
+                        pygame.draw.circle(self.gui, 'white', point, 1)
 
-            self.display = warp(self.display, tuple(self.mouse), 50)
+            # self.display = warp(self.display, tuple(self.mouse), 50)
             pygame.draw.circle(self.display, 'white', self.mouse, 5, 3)
+
             self.screen.blit(self.display, (self.OUTLINE, 0))
+            self.screen.blit(self.gui, (self.OUTLINE, 0))
             pygame.display.flip()
             self.clock.tick(self.FPS)
 

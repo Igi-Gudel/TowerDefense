@@ -21,7 +21,7 @@ class Tile(Entity):
         return pygame.Rect(self.idx*self.app.TILE_SIZE, self.idy*self.app.TILE_SIZE, self.app.TILE_SIZE, self.app.TILE_SIZE)
 
     def get_points(self) -> list:
-        if self.tower is None:
+        if self.tower is not None or (self.idx in [0, self.app.TILES_X-1] or self.idy in [0, self.app.TILES_Y-1]):
             return []
         rect = self.get_rect()
         return [rect.topleft, rect.midtop, rect.topright, rect.midleft, rect.center, rect.midright, rect.bottomleft, rect.midbottom, rect.bottomright]
