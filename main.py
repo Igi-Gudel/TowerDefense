@@ -88,7 +88,7 @@ class App:
                         tile.tower = None
                         self.tiles['last'] = None
 
-            self.pathing = {}
+            self.pathing: dict[tuple[int, int], tuple[int, int]] = {}
             point_removal = set()
             for pos in self.tiles:
                 if isinstance(pos, tuple):
@@ -101,9 +101,9 @@ class App:
             for point in self.pathing.copy():
                 if point in point_removal:
                     del self.pathing[point]
-
+            pygame.draw.lines(self.gui, 'white', False, list(self.pathing.keys()))
             for point in self.pathing:
-                pygame.draw.circle(self.gui, 'white', point, 2)
+               pygame.draw.circle(self.gui, 'white', point, 1)
 
             # self.display = warp(self.display, tuple(self.mouse), 40)
             pygame.draw.circle(self.display, 'white', self.mouse, 5, 3)
