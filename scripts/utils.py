@@ -1,14 +1,14 @@
 import numpy as np
-from numba import njit, jit, typed
-from functools import lru_cache
+from numba import njit
+from functools import cache
 import pygame
 
 
-def dijkstra(graph: typed.Dict[tuple[int, int], typed.Dict[tuple[int, int], tuple[int, int]]],
+def dijkstra(graph: dict[tuple[int, int], dict[tuple[int, int], tuple[int, int]]],
              start: tuple[int, int],
              end: tuple[int, int]) -> list[tuple[int, int]]:
-    previous_node: typed.Dict = {}
-    distances: typed.Dict = {node: float('infinity') for node in graph}
+    previous_node: dict = {}
+    distances: dict = {node: float('infinity') for node in graph}
     distances[start] = 0
     priority_queue = [(0, start)]
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     print(dijkstra(graph, start_node, end_node))
 
 
-@lru_cache
+@cache
 def warp(surface: pygame.SurfaceType, position: tuple[int], radius: int) -> pygame.Surface:
     surf_array = np.array(pygame.surfarray.array3d(surface))
     array = warp_surface(surf_array, *surface.get_size(), *position, radius=radius)

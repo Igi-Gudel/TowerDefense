@@ -2,6 +2,7 @@ import pygame
 import sys
 import json
 from scripts import *
+from functools import cache
 
 
 class App:
@@ -31,10 +32,11 @@ class App:
         self.tiles: dict[tuple[int, int], Tile] = {(x, y): Tile(self, x, y) for x in range(self.TILES_X) for y in range(self.TILES_Y)}
         self.tiles['Start'] = None
         self.tiles['End'] = None
-        self.enemies: list[Enemy] = []
+        self.enemies: list[Enemy] = [Enemy(self, pygame.Surface(10, 10), (16, 16))]
         self.pathing: dict[tuple[int, int], int] = {}
         self.towers: list[Tower] = []
 
+    @cache
     def get_tile(self, x: int, y: int, idx=True) -> Tile:
         if idx:
             return self.tiles[(x, y)]
@@ -43,6 +45,30 @@ class App:
             return self.tiles[pos]
         except KeyError:
             return self.tiles[(0, 0)]
+
+    def make_pathing(self) -> None:
+        self.pathing: dict[tuple[int, int], tuple[int, int]] = {}
+        point_removal = set()
+        for pos in self.tiles:
+            if isinstance(pos, tuple):
+                self.tiles[pos].render(self.display)
+                if pos[0] in [0, self.TILES_X - 1] or pos[1] in [0, self.TILES_Y - 1] or self.tiles[pos].tower not in [None, 'Start', 'End']:
+                    point_removal.update(self.tiles[pos].get_points())
+                for point in self.tiles[pos].get_points():
+                    self.pathing[point] = pos
+
+        for point in self.pathing.copy():
+            if point in point_removal:
+                del self.pathing[point]
+
+    def get_graph(self) -> dict[tuple[int, int], dict[tuple[int, int], tuple[int, int]]]:
+        graph = {}
+        for point in self.pathing:
+            graph[point] = {}
+            for direction in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]:
+                adjacent = point[0] + 16 * direction[0], point[1] + 16 * direction[1]
+                if adjacent in self.pathing:
+                    graph[point][adjacent] = 3 if abs(direction[0]) + abs(direction[1]) == 2 else 2
 
     def run(self) -> None:
         while True:
@@ -77,27 +103,7 @@ class App:
                             self.tiles[new] = tile
                             tile.tower = new
 
-            self.pathing: dict[tuple[int, int], tuple[int, int]] = {}
-            point_removal = set()
-            for pos in self.tiles:
-                if isinstance(pos, tuple):
-                    self.tiles[pos].render(self.display)
-                    if pos[0] in [0, self.TILES_X - 1] or pos[1] in [0, self.TILES_Y - 1] or self.tiles[pos].tower not in [None, 'Start', 'End']:
-                        point_removal.update(self.tiles[pos].get_points())
-                    for point in self.tiles[pos].get_points():
-                        self.pathing[point] = pos
-
-            for point in self.pathing.copy():
-                if point in point_removal:
-                    del self.pathing[point]
-
-            graph = {}
-            for point in self.pathing:
-                graph[point] = {}
-                for direction in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]:
-                    adjacent = point[0] + 16*direction[0], point[1] + 16*direction[1]
-                    if adjacent in self.pathing:
-                        graph[point][adjacent] = 3 if abs(direction[0]) + abs(direction[1]) == 2 else 2
+            graph = get_graph()
             try:
                 start_pos = self.tiles['Start'].get_rect().center
                 end_pos = self.tiles['End'].get_rect().center
