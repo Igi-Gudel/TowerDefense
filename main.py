@@ -91,11 +91,19 @@ class App:
                         tile.tower = None
                         self.tiles['last'] = None
 
+            self.pathing = {}
+            point_removal = set()
             for pos in self.tiles:
                 if isinstance(pos, tuple):
                     self.tiles[pos].render(self.display)
+                    if pos[0] in [0, self.TILES_X-1] or pos[1] in [0, self.TILES_Y-1] or self.tiles[pos].tower is not None:
+                        point_removal.update(self.tiles[pos].get_points())
                     for point in self.tiles[pos].get_points():
                         self.pathing[point] = pos
+
+            for point in self.pathing.copy():
+                if point in point_removal:
+                    del self.pathing[point]
 
             for point in self.pathing:
                 pygame.draw.circle(self.gui, 'white', point, 2)
