@@ -14,7 +14,7 @@ class Tile(Entity):
             width = 1
         if self.tower is not None:
             width = 8
-        colour = 4*self.idx, 4*self.idy, 2*(self.app.TILES_X-self.idx+self.app.TILES_Y-self.idy)
+        colour = 5*self.idx, 5*self.idy, 2.5*(self.app.TILES_X-self.idx+self.app.TILES_Y-self.idy)
         pygame.draw.rect(surf, colour, self.get_rect(), width)
 
     def get_rect(self) -> pygame.Rect:
