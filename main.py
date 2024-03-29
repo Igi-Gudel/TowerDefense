@@ -18,9 +18,9 @@ def warp(surface: pygame.SurfaceType, position: tuple[int], radius: int) -> pyga
 @njit
 def warp_surface(surface: np.array, width: int, height: int, px: int, py: int, radius: int) -> np.array:
     warped_surface = surface.copy()
-    for y in range(radius//2, height-radius//2):
-        for x in range(radius//2, width-radius//2):
-            warp_amount = max(0.5*(radius - ((x - px) ** 2 + (y - py) ** 2) ** 0.5) / radius, 0.02)
+    for y in range(radius // 2, height - radius // 2):
+        for x in range(radius // 2, width - radius // 2):
+            warp_amount = max(0.5 * (radius - ((x - px) ** 2 + (y - py) ** 2) ** 0.5) / radius, 0.02)
             warped_surface[x, y] = surface[int(x + (px - x) * warp_amount), int(y + (py - y) * warp_amount)]
     return warped_surface
 
@@ -52,6 +52,7 @@ class App:
         self.tiles: dict[tuple[int, int], Tile] = {(x, y): Tile(self, x, y) for x in range(self.TILES_X) for y in range(self.TILES_Y)}
         self.tiles['last'] = None
         self.enemies: list[Enemy] = []
+        self.pathing: dict[tuple[int, int], int] = {}
         self.towers: list[Tower] = []
 
     def get_tile(self, x: int, y: int, idx=True) -> Tile:
@@ -71,6 +72,9 @@ class App:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    keys = list(self.pathing.keys())
+                    keys.sort(key=lambda z: z[0]+z[1])
+                    print(keys)
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEMOTION:
@@ -91,7 +95,10 @@ class App:
                 if isinstance(pos, tuple):
                     self.tiles[pos].render(self.display)
                     for point in self.tiles[pos].get_points():
-                        pygame.draw.circle(self.gui, 'white', point, 1)
+                        self.pathing[point] = pos
+
+            for point in self.pathing:
+                pygame.draw.circle(self.gui, 'white', point, 2)
 
             # self.display = warp(self.display, tuple(self.mouse), 50)
             pygame.draw.circle(self.display, 'white', self.mouse, 5, 3)
