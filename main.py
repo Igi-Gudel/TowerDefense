@@ -103,7 +103,7 @@ class App:
                     del self.pathing[point]
 
             pathing: list[tuple] = list(self.pathing.keys())
-            pathing.sort(key=lambda z: z[0] * 1000 + z[1])
+            pathing.sort(key=lambda z: z[1] * 1000 + z[0])
             pygame.draw.lines(self.gui, 'white', False, pathing)
             for point in pathing:
                 pygame.draw.circle(self.gui, 'white', point, 1)
