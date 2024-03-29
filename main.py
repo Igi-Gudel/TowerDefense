@@ -108,16 +108,6 @@ class App:
             except ValueError:
                 pass
 
-            # for point, connections in graph.items():
-            #     for connection in connections:
-            #         pygame.draw.line(self.gui, 'white' if connections[connection]-2 else 'dark grey', point, connection, connections[connection])
-
-            # pathing: list[tuple] = list(self.pathing.keys())
-            # pathing.sort(key=lambda z: z[0] + z[1])
-            # pygame.draw.lines(self.gui, 'white', False, pathing)
-            # for point in pathing:
-            #     pygame.draw.circle(self.gui, 'white', point, 1)
-
             # self.display = warp(self.display, tuple(self.mouse), 40)
             pygame.draw.circle(self.display, 'white', self.mouse, 5, 3)
 
