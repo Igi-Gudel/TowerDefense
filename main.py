@@ -72,9 +72,6 @@ class App:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                    keys = list(self.pathing.keys())
-                    keys.sort(key=lambda z: z[0]+z[1])
-                    print(keys)
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEMOTION:
@@ -108,7 +105,7 @@ class App:
             for point in self.pathing:
                 pygame.draw.circle(self.gui, 'white', point, 2)
 
-            # self.display = warp(self.display, tuple(self.mouse), 50)
+            # self.display = warp(self.display, tuple(self.mouse), 40)
             pygame.draw.circle(self.display, 'white', self.mouse, 5, 3)
 
             self.screen.blit(self.display, (self.OUTLINE, 0))
