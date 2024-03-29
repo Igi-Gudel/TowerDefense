@@ -54,8 +54,8 @@ class App:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEMOTION:
-                    self.mouse[0] = int(min(max(self.mouse[0] + event.rel[0] * min(max(self.data['sensitivity'][0], 0.4), 1.8), self.OUTLINE), self.screen.get_width() - 2 * self.OUTLINE) // 1)
-                    self.mouse[1] = int(min(max(self.mouse[1] + event.rel[1] * min(max(self.data['sensitivity'][1], 0.4), 1.8), self.OUTLINE), self.screen.get_height() - self.OUTLINE) // 1)
+                    self.mouse[0] = int(min(max(self.mouse[0] + event.rel[0] * min(max(self.data['sensitivity'][0], 0.4), 2.0), self.OUTLINE), self.screen.get_width() - 2 * self.OUTLINE) // 1)
+                    self.mouse[1] = int(min(max(self.mouse[1] + event.rel[1] * min(max(self.data['sensitivity'][1], 0.4), 2.0), self.OUTLINE), self.screen.get_height() - self.OUTLINE) // 1)
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     tile = self.get_tile(*self.mouse, idx=False)
                     if tile.tower is None:
