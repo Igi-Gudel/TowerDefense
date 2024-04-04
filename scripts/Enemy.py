@@ -10,6 +10,7 @@ class Enemy(Entity):
         self.last_movement = pygame.Vector2(0)
         self.img = img
         self.data = data
+        self.directions = []
 
     def get_rect(self) -> pygame.Rect:
         return pygame.Rect(self.pos, self.img.get_size())
@@ -17,16 +18,23 @@ class Enemy(Entity):
     def render(self, surf: pygame.SurfaceType) -> None:
         pygame.draw.rect(surf, 'white', self.get_rect())
 
-    def update(self) -> bool:
+    def update_path(self):
+        start, end, _ = self.get_self_target_distance()
+        self.directions = self.app.get_next_pos(start, end)
+
+    def get_self_target_distance(self) -> tuple[tuple[int, int], tuple[int, int], float]:
         start, distance = self.app.get_tile(*self.pos, idx=False).get_closest_side(self.pos)
         end = self.app.get_target().get_rect().center
+        return start, end, distance
+
+    def update(self) -> bool:
+        start, end, distance = self.get_self_target_distance()
         if start == end and distance <= 8:
             self.set_center(end)
             return True
         else:
-            directions = self.app.get_next_pos(start, end)
-            if directions and directions is not None:
-                self.last_movement = pygame.Vector2(directions[0]) - pygame.Vector2(self.get_rect().center)
+            if self.directions and self.directions is not None:
+                self.last_movement = pygame.Vector2(self.directions[0]) - pygame.Vector2(self.get_rect().center)
             self.__move(self.last_movement)
         return False
 
