@@ -1,51 +1,50 @@
 import numpy as np
-from numba import njit
+from numba import njit, jit
+from random import shuffle
 from functools import cache
 import pygame
 
 
-def dijkstra(graph: dict[tuple[int, int], dict[tuple[int, int], tuple[int, int]]],
-             start: tuple[int, int],
-             end: tuple[int, int]) -> list[tuple[int, int]]:
-    previous_node: dict = {}
-    distances: dict = {node: float('infinity') for node in graph}
-    distances[start] = 0
-    priority_queue = [(0, start)]
-
-    while priority_queue:
-        min_distance_node = min(priority_queue, key=lambda x: x[0])
-        current_distance, current_node = min_distance_node
-        priority_queue.remove(min_distance_node)
-
-        if current_node == end:
-            path = []
-            while current_node != start:
-                path.append(current_node)
-                current_node = previous_node[current_node]
-            path.append(start)
-            return path[::-1]
-
-        for neighbor, weight in graph[current_node].items():
-            distance = current_distance + weight
-            if distance < distances[neighbor]:
-                distances[neighbor] = distance
-                priority_queue.append((distance, neighbor))
-                previous_node[neighbor] = current_node
-    return None
+@cache
+@njit
+def heuristic(a, b):
+    return abs(b[0] - a[0]) + abs(b[1] - a[1])
 
 
-if __name__ == '__main__':
-    graph = {
-        'A': {'B': 1, 'C': 4, 'D': 1},
-        'B': {'A': 1, 'C': 2, 'D': 5},
-        'C': {'A': 4, 'B': 2, 'D': 1},
-        'D': {'B': 5, 'C': 1}
-    }
+def reconstruct_path(came_from: dict, current: int) -> list:
+    total_path = [current]
+    while current in came_from:
+        current = came_from[current]
+        total_path.append(current)
+    return total_path[::-1][1:]
 
-    start_node = 'A'
-    end_node = 'D'
-    previous_node = {}  # To store previous nodes for backtracking
-    print(dijkstra(graph, start_node, end_node))
+
+def astar(graph: dict[tuple[int, int]: dict[tuple[int, int]: int]], start: tuple[int, int], goal: tuple[int, int]):
+    open_set = {start}
+    came_from = {}
+    g_score = {point: float('inf') for point in graph}
+    g_score[start] = 0
+    f_score = {point: float('inf') for point in graph}
+    f_score[start] = heuristic(start, goal)
+
+    while open_set:
+        current = min(open_set, key=lambda x: f_score[x])
+        if current == goal:
+            return reconstruct_path(came_from, current)
+
+        open_set.remove(current)
+        neighbors = list(graph[current].keys())
+        shuffle(neighbors)
+        for neighbor in neighbors:
+            tentative_g_score = g_score[current] + graph[current][neighbor]
+            if tentative_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g_score
+                f_score[neighbor] = g_score[neighbor] + heuristic(neighbor, goal)
+                if neighbor not in open_set:
+                    open_set.add(neighbor)
+
+    return None  # No path found
 
 
 @cache
@@ -63,3 +62,11 @@ def warp_surface(surface: np.array, width: int, height: int, px: int, py: int, r
             warp_amount = max(0.5 * (radius - ((x - px) ** 2 + (y - py) ** 2) ** 0.5) / radius, 0.02)
             warped_surface[x, y] = surface[int(x + (px - x) * warp_amount), int(y + (py - y) * warp_amount)]
     return warped_surface
+
+
+def load_image():
+    pass
+
+
+def load_images():
+    pass
