@@ -1,6 +1,7 @@
 import pygame
 from random import random
 from scripts.Entity import Entity
+from scripts.utils import get_closest_side, get_pos
 
 
 class Enemy(Entity):
@@ -20,16 +21,16 @@ class Enemy(Entity):
 
     def update_path(self):
         start, end, _ = self.get_self_target_distance()
-        self.directions = self.app.get_next_pos(start, end)
+        self.directions = self.app.tileManager.get_path(0)
 
     def get_self_target_distance(self) -> tuple[tuple[int, int], tuple[int, int], float]:
-        start, distance = self.app.get_tile(*self.pos, idx=False).get_closest_side(self.pos)
-        end = self.app.get_target().get_rect().center
+        start, distance = get_closest_side(tuple(self.pos), self.app.tileManager.get_tile(*self.pos, idx=False))
+        end = self.app.tileManager.get_target().get_rect().center
         return start, end, distance
 
     def update(self) -> bool:
         start, end, distance = self.get_self_target_distance()
-        if start == end and distance <= 8:
+        if start == end and distance <= 10:
             self.set_center(end)
             return True
         else:

@@ -1,5 +1,6 @@
 import pygame
 from scripts.Entity import Entity
+from scripts.utils import get_distance
 
 
 class Tile(Entity):
@@ -11,17 +12,8 @@ class Tile(Entity):
     def __str__(self):
         return f"({self.idx}, {self.idy})"
 
-    def get_closest_side(self, pos: tuple[int, int]) -> tuple[int, int]:
-        points = self.get_points()
-        closest = ()
-        for x, y in points[1:]:
-            distance = (pos[0]-x)**2 + (pos[1]-y)**2
-            if not closest:
-                closest = (x, y, distance)
-                continue
-            if distance <= closest[-1]:
-                closest = (x, y, distance)
-        return closest[:2], closest[-1]**0.5
+    def valid(self) -> bool:
+        return not (self.idx in [0, self.app.TILES_X - 1] or self.idy in [0, self.app.TILES_Y - 1] or self.tower)
 
     def render(self, surf: pygame.SurfaceType) -> None:
         width = 0
@@ -29,7 +21,7 @@ class Tile(Entity):
             width = 1
         if self.tower:
             width = 8
-        colour = 5*self.idx, 5*self.idy, 2.5*(self.app.TILES_X-self.idx+self.app.TILES_Y-self.idy)
+        colour = 4*self.idx, 4*self.idy, 2*(self.app.TILES_X-self.idx+self.app.TILES_Y-self.idy)
         pygame.draw.rect(surf, colour, self.get_rect(), width)
 
     def get_rect(self) -> pygame.Rect:
