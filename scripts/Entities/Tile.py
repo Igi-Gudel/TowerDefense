@@ -1,13 +1,16 @@
 import pygame
-from scripts.Entity import Entity
-from scripts.utils import get_distance
+from .Entity import Entity
+from scripts.Utils.utils import get_distance
 
 
 class Tile(Entity):
-    def __init__(self, app, idx: int, idy: int):
-        super().__init__(app)
+    def __init__(self, manager, idx: int, idy: int):
+        super().__init__(manager)
         self.idx, self.idy = idx, idy
-        self.tower = False
+        self.tower: bool = False
+
+    def __repr__(self):
+        return self.__str__()
 
     def __str__(self):
         return f"({self.idx}, {self.idy})"

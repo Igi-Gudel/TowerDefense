@@ -22,11 +22,14 @@ def warp_surface(surface: np.array, width: int, height: int, px: int, py: int, r
     return warped_surface
 
 
-def load_image(path: os.PathLike, colourKey: tuple[int, int, int] = (0, 0, 0)) -> pygame.Surface:
-    img = pygame.image.load(path).convert_alpha()
+def load_image(path: os.PathLike, colourKey: tuple[int, int, int] = (0, 0, 0), new_size: tuple[int, int] = None) -> pygame.Surface:
+    if new_size is None:
+        img = pygame.image.load(name).convert_alpha()
+    else:
+        img = pygame.transform.scale(pygame.image.load(name).convert_alpha(), new_size)
     img.set_colorkey(colourKey)
     return img
 
 
-def load_images():
-    pass
+def load_images(path: os.PathLike, colourKey: tuple[int, int, int] = (0, 0, 0), size: tuple[int, int] = (24, 24)) -> tuple[pygame.Surface]:
+    return tuple(get_image(path + "/" + name, colourKey, size) for name in os.listdir(path))

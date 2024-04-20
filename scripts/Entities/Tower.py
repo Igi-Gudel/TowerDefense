@@ -1,5 +1,5 @@
 import pygame
-from scripts.Entity import Entity
+from .Entity import Entity
 
 
 class Tower(Entity):
